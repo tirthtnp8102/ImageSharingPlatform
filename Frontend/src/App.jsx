@@ -64,6 +64,7 @@ const App = () => {
               path="/create-post"
               element={<CreatePost onCreatePost={addPost} />}
             />
+            <Route path="*" element={<Navigate to="/feed" replace />} />
           </Routes>
         </main>
       </div>

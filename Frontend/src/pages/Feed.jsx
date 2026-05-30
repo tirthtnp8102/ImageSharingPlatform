@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 
 const Feed = ({ posts }) => {
@@ -67,15 +66,6 @@ const Feed = ({ posts }) => {
       </section>
     </div>
   )
-}
-
-Feed.propTypes = {
-  posts: PropTypes.arrayOf(
-    PropTypes.shape({
-      image: PropTypes.string.isRequired,
-      caption: PropTypes.string.isRequired,
-    })
-  ).isRequired,
 }
 
 export default Feed
