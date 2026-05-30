@@ -1,89 +1,100 @@
-import { useEffect, useMemo, useState } from 'react'
+import PropTypes from 'prop-types'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-const CreatePost = () => {
-  const [caption, setCaption] = useState(
-    'Chasing quiet light and clean compositions.'
-  )
-  const [category, setCategory] = useState('Travel')
-  const [preview, setPreview] = useState('')
+const fallbackImage =
+  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1000&q=80'
+
+const CreatePost = ({ onCreatePost }) => {
+  const navigate = useNavigate()
+  const [image, setImage] = useState('')
+  const [caption, setCaption] = useState('')
+  const [imageName, setImageName] = useState('')
 
   const captionCount = useMemo(() => caption.trim().length, [caption])
+  const previewImage = image || fallbackImage
 
-  useEffect(() => {
-    return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview)
-      }
-    }
-  }, [preview])
-
-  const handleFileChange = (event) => {
+  const handleImageUpload = (event) => {
     const file = event.target.files?.[0]
 
     if (!file) {
       return
     }
 
-    if (preview) {
-      URL.revokeObjectURL(preview)
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      setImage(String(reader.result))
+      setImageName(file.name)
     }
 
-    setPreview(URL.createObjectURL(file))
+    reader.readAsDataURL(file)
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+
+    if (!image || !caption.trim()) {
+      return
+    }
+
+    onCreatePost({
+      image,
+      caption: caption.trim(),
+    })
+
+    navigate('/feed')
+  }
+
+  const handleReset = () => {
+    setImage('')
+    setCaption('')
+    setImageName('')
   }
 
   return (
     <div className="create-page">
       <section className="create-intro">
         <p className="eyebrow">Create post</p>
-        <h1>Prepare a beautiful image post before it goes live.</h1>
+        <h1>Build a post with only an image and caption.</h1>
         <p>
-          This screen is intentionally front-end only. It previews uploads and
-          copy locally without sending data to the backend.
+          No backend integration is used here. The form creates a local
+          front-end post matching your Mongoose schema fields.
         </p>
       </section>
 
       <section className="creator-layout">
-        <form className="post-form">
+        <form className="post-form" onSubmit={handleSubmit} onReset={handleReset}>
           <label className="upload-zone">
-            <input type="file" name="image" accept="image/*" onChange={handleFileChange} />
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleImageUpload}
+              required
+            />
             <span className="upload-icon">+</span>
-            <strong>Drop in your best image</strong>
-            <small>PNG, JPG, or WEBP previewed locally</small>
+            <strong>{imageName || 'Choose an image'}</strong>
+            <small>The image is converted to a string preview locally.</small>
           </label>
 
-          <label>
+          <label className="field-group">
             Caption
             <textarea
               name="caption"
               rows="5"
-              maxLength="180"
+              maxLength="160"
               value={caption}
               onChange={(event) => setCaption(event.target.value)}
-              placeholder="Write a short story behind this image"
+              placeholder="Write a caption for this image"
               required
             />
-            <small>{captionCount}/180 characters</small>
-          </label>
-
-          <label>
-            Category
-            <select
-              name="category"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-            >
-              <option>Travel</option>
-              <option>Nature</option>
-              <option>Portrait</option>
-              <option>Food</option>
-              <option>Street</option>
-              <option>Architecture</option>
-            </select>
+            <small>{captionCount}/160 characters</small>
           </label>
 
           <div className="form-row">
-            <button type="button" className="primary-action">
-              Preview Post
+            <button type="submit" className="primary-action">
+              Create Post
             </button>
             <button type="reset" className="secondary-action">
               Clear
@@ -91,37 +102,21 @@ const CreatePost = () => {
           </div>
         </form>
 
-        <aside className="live-preview" aria-label="Live post preview">
-          <div className="phone-frame">
-            <div className="phone-header">
-              <span className="avatar">PS</span>
-              <div>
-                <strong>You</strong>
-                <small>{category}</small>
-              </div>
-            </div>
+        <aside className="live-preview" aria-label="Post preview">
+          <article className="preview-card">
             <div className="preview-image">
-              {preview ? (
-                <img src={preview} alt="Selected upload preview" />
-              ) : (
-                <img
-                  src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1000&q=80"
-                  alt="Desert landscape preview placeholder"
-                />
-              )}
+              <img src={previewImage} alt={caption || 'Selected post preview'} />
             </div>
-            <div className="preview-copy">
-              <p>{caption || 'Your caption will appear here.'}</p>
-              <div className="post-meta">
-                <span>New post</span>
-                <span>Ready to share</span>
-              </div>
-            </div>
-          </div>
+            <p>{caption || 'Your caption preview will appear here.'}</p>
+          </article>
         </aside>
       </section>
     </div>
   )
+}
+
+CreatePost.propTypes = {
+  onCreatePost: PropTypes.func.isRequired,
 }
 
 export default CreatePost
