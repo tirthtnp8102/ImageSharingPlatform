@@ -46,8 +46,8 @@ const Feed = ({ posts }) => {
 
       <section id="feed-gallery" className="gallery-grid" aria-label="Image feed">
         {posts.length > 0 ? (
-          posts.map((post, index) => (
-            <article className="post-card" key={`${post.image}-${index}`}>
+          posts.map((post) => (
+            <article className="post-card" key={post._id}>
               <div className="post-image-wrap">
                 <img src={post.image} alt={post.caption} />
               </div>
