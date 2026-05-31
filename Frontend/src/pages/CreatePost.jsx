@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 const fallbackImage =
   'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1000&q=80'
 
 const CreatePost = ({ onCreatePost }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [image, setImage] = useState('')
   const [caption, setCaption] = useState('')
   const [imageName, setImageName] = useState('')
@@ -33,16 +34,22 @@ const CreatePost = ({ onCreatePost }) => {
   const handleSubmit = (event) => {
     event.preventDefault()
 
+
     if (!image || !caption.trim()) {
       return
     }
 
-    onCreatePost({
-      image,
-      caption: caption.trim(),
-    })
+    const formData = new FormData(event.target);
 
-    navigate('/feed')
+    let post;
+
+    axios.post("http://localhost:3000/create-post", formData)
+      .then((res) => {
+        post = res.data.post;
+        onCreatePost(post);
+        navigate('/feed');
+      })
+
   }
 
   const handleReset = () => {

@@ -1,41 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import CreatePost from './pages/CreatePost'
 import Feed from './pages/Feed'
+import axios from "axios";
 
 const starterPosts = [
   {
+    _id: 0,
     image:
       'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
     caption: 'Golden light spilling across a quiet glasshouse after rain.',
-  },
-  {
-    image:
-      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1200&q=80',
-    caption: 'Blue hour in the mountains, where everything feels slower.',
-  },
-  {
-    image:
-      'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80',
-    caption: 'A neon street corner turning an ordinary night cinematic.',
-  },
-  {
-    image:
-      'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80',
-    caption: 'Breakfast arranged like a tiny editorial shoot.',
-  },
-  {
-    image:
-      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
-    caption: 'Soft studio portrait with clean contrast and calm shadows.',
-  },
+  }
 ]
 
 const App = () => {
-  const [posts, setPosts] = useState(starterPosts)
+  const [posts, setPosts] = useState(starterPosts);
+
+  useEffect(() => {
+    axios.get("http://localhost:3000/posts")
+      .then((res) => {
+        setPosts(res.data.posts);
+      })
+  }, []);
 
   const addPost = (post) => {
-    setPosts((currentPosts) => [post, ...currentPosts])
+    setPosts((currentPosts) => [post, ...currentPosts]);
   }
 
   return (
